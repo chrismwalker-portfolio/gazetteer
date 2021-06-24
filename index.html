@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+    <html class="full-screen noscroll" lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="mobile-web-app-capable" content="yes">
+
+        <meta name="description" content="Gazetteer - World Directory - Interactive App">
+        <meta name="keywords" content="Gazetteer, world, atlas, index, directory, map, HTML, HTML5, CSS, CSS3, JavaScript, jQuery, Bootstrap, web, app, PHP, AJAX, cURL, API, leaflet">
+        <meta name="author" content="Chris Walker">
+
+        <!-- Favicons -->
+        <link rel="apple-touch-icon" sizes="180x180" href="./resources/img/favicons/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="./resources/img/favicons/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="./resources/img/favicons/favicon-16x16.png">
+        <link rel="manifest" href="./resources/img/favicons/site.webmanifest">
+        <link rel="mask-icon" href="./resources/img/favicons/safari-pinned-tab.svg" color="#5bbad5">
+        <link rel="shortcut icon" href="./resources/img/favicons/favicon.ico">
+        <meta name="msapplication-TileColor" content="#da532c">
+        <meta name="msapplication-config" content="./resources/img/favicons/browserconfig.xml">
+        <meta name="theme-color" content="#ffffff">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="./vendors/css/bootstrap.min.css">
+        <!-- Font Awesome CSS -->
+        <link rel="stylesheet" type="text/css" href="./vendors/css/all.css">
+        <!-- Leaflet CSS -->
+        <link rel="stylesheet" type="text/css" href="./vendors/css/leaflet.css">
+        <!-- Leaflet.markercluster CSS -->
+        <link rel="stylesheet" type="text/css" href="./vendors/css/MarkerCluster.css">
+        <!-- Leaflet.markercluster - default icons CSS -->
+        <link rel="stylesheet" type="text/css" href="./vendors/css/MarkerCluster.Default.css">
+        <!-- Leaflet EasyButton CSS -->
+        <link rel="stylesheet" type="text/css" href="./vendors/css/easy-button.css">
+        <!-- Main styles CSS -->
+        <link rel="stylesheet" type="text/css" href="./resources/css/style.min.css">
+
+        <title>Gazetteer - World Directory</title>
+    </head>
+    <body class="full-screen noscroll">
+
+        <!-- Full-screen preloader -->
+        <div class="container-fluid full-screen" id="preloader">
+            <div class="row h-100 align-items-center">
+                <div class="col text-center">
+                    <div class="fading-circle">
+                        <div class="circle1 circle"></div>
+                        <div class="circle2 circle"></div>
+                        <div class="circle3 circle"></div>
+                        <div class="circle4 circle"></div>
+                        <div class="circle5 circle"></div>
+                        <div class="circle6 circle"></div>
+                        <div class="circle7 circle"></div>
+                        <div class="circle8 circle"></div>
+                        <div class="circle9 circle"></div>
+                        <div class="circle10 circle"></div>
+                        <div class="circle11 circle"></div>
+                        <div class="circle12 circle"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Bootstrap container -->
+        <div class="container-fluid full-screen d-flex flex-column">
+
+            <!-- First row containing header with logo and country dropdown -->
+            <div class="row header-row">
+                <div class="col-auto">
+                    <div id="header-logo">
+                        <a href="https://chrismwalker.co.uk" target="_blank"><img class="img-fluid" src='./resources/img/gazetteer-logo.png' alt="Gazetteer - World Directory" aria-label="Gazetteer - World Directory"></a>
+                    </div>
+                </div>
+                <div class="col d-flex justify-content-end align-items-center pl-0">
+                    <div id="header-dropdown">
+                        <select class="dropdown w-100" id="countryDropdownList">
+                            <option value="default">-- Select country --</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Second row containing the map panel -->
+            <div class="row map-row flex-fill pl-0 pr-0">
+                <div class="col d-flex flex-column pl-0 pr-0">
+                    <!-- Map area -->
+                    <div class="h-100" id="gazetteerMap"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Error modal - failed to retrieve country data -->
+        <div id="errorModal" class="modal fade" role="dialog" aria-describedby="Unable to retrieve country data" aria-labelledby="error-modal-title" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <p>Something went wrong...</p>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+                    </div>
+                    <div class="modal-body" id="error-modal-body">
+                        <h4 class="modal-title d-inline-block pb-1 mb-4" id="error-modal-title">Error</h4>
+                        <p>Unable to retrieve country data.</p>
+                        <p>Please try again.</p>
+                    </div>
+                    <div class="modal-footer" id="error-modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal to show Gazetteer 'how to use' instructions -->
+        <div id="helpModal" class="modal fade" role="dialog" aria-describedby="How to use the Gazetteer application" aria-labelledby="help-modal-title" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <!-- Modal content -->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="help-modal-title">Welcome to Gazetteer!</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Travel around the world by selecting a country from the dropdown to learn fun and interesting facts. Click/tap the buttons along the edge of the map for more information about your chosen country; statistics, weather forecast, currency converter, language translation, public holidays, webcams and more.</p>
+                        <p>The map will also show you markers for up to one hundred of the most popular sights, museums and tourist attractions in and around your chosen country.</p>
+                        <p>Click/tap any marker to show a card containing more information, such as opening hours and contact details. Some markers even have a photo gallery!</p>
+                        <p>Enjoy your trip!</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal to show general country information -->
+        <div id="modal-card-general" class="modal fade" role="dialog" aria-describedby="General country information" aria-labelledby="country-general-modal-title" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <!-- Modal content -->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="country-general-modal-title">Country Information</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-12 mb-2">
+                                <div class="text-center" id="modal-card-country-flag"></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 mb-0">
+                                <div class="table-responsive">
+                                    <table class="table table-sm mb-0">
+                                        <tbody>
+                                            <tr>
+                                                <th scope="row">Name:</th>
+                                                <td id="modal-card-country-name"></td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">Region:</th>
+                                                <td id="modal-card-country-region"></td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">Area:</th>
+                                                <td id="modal-card-country-area"></td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">Borders:</th>
+                                                <td id="modal-card-country-borders"></td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">Capital City:</th>
+                                                <td id="modal-card-country-capital"></td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">Population:</th>
+                                                <td id="modal-card-country-population"></td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">Currency:</th>
+                                                <td id="modal-card-country-currency"></td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">Language:</th>
+                                                <td id="modal-card-country-language"></td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">Internet Domain:</th>
+                                                <td id="modal-card-country-domain"></td>
+                                            </tr>
+                                            <tr>
+                                                <th scope="row">Telephone Code:</th>
+                                                <td id="modal-card-country-tel"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal to show country Wikipedia images and text -->
+        <div id="modal-card-wikipedia" class="modal fade" role="dialog" aria-describedby="Wikipedia country information" aria-labelledby="wikipedia-modal-title" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <!-- Modal content -->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="wikipedia-modal-title">Wikipedia</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+
+                        <!-- Create an image carousel for the Wikipedia photos -->
+                        <div class="row">
+                            <div class="col-12" id="modal-card-country-wiki-carousel">
+                                <div id="wiki-carousel" class="carousel slide" data-ride="carousel">
+                                    <ol class="carousel-indicators"></ol>
+                                    <div class="carousel-inner"></div>
+                                    <a class="carousel-control-prev" href="#wiki-carousel" role="button" data-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Previous</span>
+                                    </a>
+                                    <a class="carousel-control-next" href="#wiki-carousel" role="button" data-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Next</span>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-12 mb-3 mb-lg-2" id="modal-card-wiki-carousel-caption"></div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col" id="modal-card-country-wikipedia"></div>
+                        </div>
+                        <div class=row>
+                            <div class="col mt-4" id="modal-card-country-wiki-read-more">Read More:</div>
+                        </div>
+                        <div class=row>
+                            <div class="col mb-0">
+                                <a id="modal-card-country-wiki-link"></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal to show country weather forecast -->
+        <div id="modal-card-weather" class="modal fade" role="dialog" aria-describedby="Country weather forecast" aria-labelledby="weather-modal-title" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <!-- Modal content -->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="weather-modal-title">Weather Forecast<i class="fas fa-question-circle" data-toggle="tooltip" data-placement="bottom" data-html="true" title="Forecast is for country's central point.<br>Dates are relative to country's timezone."></i></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row mb-0 mb-lg-2">
+                            <div class="col mb-0 mb-lg-2">
+                                <div class="card-group weather">
+                                    <!-- Day 1 -->
+                                    <div class="card text-center">
+                                        <div class="card-header">
+                                            <h5 class="card-title" id="forecast-title-day-0"></h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <img class="img-fluid" id="forecast-icon-day-0">
+                                        </div>
+                                        <div class="card-footer">
+                                            <p class="card-text" id="forecast-max-day-0"></p>
+                                            <p class="card-text" id="forecast-min-day-0"></p>
+                                        </div>
+                                    </div>
+                                    <!-- Day 2 -->
+                                    <div class="card text-center">
+                                        <div class="card-header">
+                                            <h5 class="card-title" id="forecast-title-day-1"></h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <img class="img-fluid" id="forecast-icon-day-1">
+                                        </div>
+                                        <div class="card-footer">
+                                            <p class="card-text" id="forecast-max-day-1"></p>
+                                            <p class="card-text" id="forecast-min-day-1"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-0">
+                            <div class="col mb-0">
+                                <div class="card-group weather">
+                                    <!-- Day 3 -->
+                                    <div class="card text-center">
+                                        <div class="card-header">
+                                            <h5 class="card-title" id="forecast-title-day-2"></h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <img class="img-fluid" id="forecast-icon-day-2">
+                                        </div>
+                                        <div class="card-footer">
+                                            <p class="card-text" id="forecast-max-day-2"></p>
+                                            <p class="card-text" id="forecast-min-day-2"></p>
+                                        </div>
+                                    </div>
+                                    <!-- Day 4 -->
+                                    <div class="card text-center">
+                                        <div class="card-header">
+                                            <h5 class="card-title" id="forecast-title-day-3"></h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <img class="img-fluid" id="forecast-icon-day-3">
+                                        </div>
+                                        <div class="card-footer">
+                                            <p class="card-text" id="forecast-max-day-3"></p>
+                                            <p class="card-text" id="forecast-min-day-3"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal to show currency exchange converter -->
+        <div id="modal-card-currency" class="modal fade" role="dialog" aria-describedby="Currency calculator" aria-labelledby="currency-modal-title" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <!-- Modal content -->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="currency-modal-title">Currency Calculator</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row mb-3">
+                            <div class="col-12 col-lg-4 mb-0">
+                                <label class="mb-lg-0" for="currencyAmountInput">Amount:</label>
+                            </div>
+                            <div class="col-12 col-lg-8 align-self-center">
+                                <div id="currency-amount-input">
+                                    <input class="mw-100" id="currencyAmountInput" type="number" name="currencyAmountInput" value="1.00" min="1">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-12 col-lg-4 mb-0">
+                                <label class="mb-lg-0" for="currencyFromDropdownList">Convert from:</label>
+                            </div>
+                            <div class="col-12 col-lg-8 align-self-center">
+                                <div id="currency-from-dropdown">
+                                    <select class="dropdown mw-100" id="currencyFromDropdownList">
+                                        <option value="">-- Select currency --</option>
+                                    </select>
+                                </div>                                
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-12 col-lg-4 mb-0">
+                                <label class="mb-lg-0" for="currencyToDropdownList">Convert to:</label>
+                            </div>
+                            <div class="col-12 col-lg-8 align-self-center">
+                                <div id="currency-to-dropdown">
+                                    <select class="dropdown mw-100" id="currencyToDropdownList">
+                                        <option value="">-- Select currency --</option>
+                                    </select>
+                                </div>                                
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col mt-2 mb-0">
+                                <button type="button" class="btn btn-default" id="currency-convert-button" aria-label="Convert">Convert</button>
+                            </div>
+                        </div>
+                        <div id="currency-results">
+                            <div class="row">
+                                <div class="col"><hr class="mb-1"></div>
+                            </div>    
+                            <div class="row mt-3">
+                                <div class="col-12"><p id="currency-result-from"><span id="currency-result-from-amount"></span></p></div>
+                                <div class="col-12"><p id="currency-result-to"><span id="currency-result-to-amount"></span></p></div>
+                            </div>
+                            <div class="row mt-2 mb-2">
+                                <div class="col"><hr class="mt-0 mb-1"></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 mb-0"><p class="mb-1" id="currency-base-rate"></p></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 mt-0 mb-0"><p class="mb-0" id="currency-result-timestamp"></p></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal to show language translation -->
+        <div id="modal-card-translate" class="modal fade" role="dialog" aria-describedby="Language translation" aria-labelledby="translate-modal-title" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <!-- Modal content -->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="translate-modal-title">Translate</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-12 col-lg-3 mb-0">
+                                <label for="translateInputText">Translate from English:</label>
+                            </div>
+                            <div class="col-12 col-lg-9 align-self-center mb-0">
+                                <div id="translate-input">
+                                    <textarea class="w-100" id="translateInputText" name="translateInputText" rows="7" maxlength="500" placeholder="Enter text in English..."></textarea>
+                                </div>
+                            </div>
+                            <div class="col-12 mt-0 mb-0">
+                                <p id="translate-char-limit"></p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 col-lg-3 mt-0 mb-0">
+                                <label for="translateOutputDropdownList">Translate to:</label>
+                            </div>
+                            <div class="col-12 col-lg-9">
+                                <div id="translate-output-dropdown">
+                                    <select class="dropdown mw-100" id="translateOutputDropdownList"></select>
+                                </div>                                
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 col-lg-3 mt-0 mb-0"></div>
+                            <div class="col-12 col-lg-9 mt-4 mb-4">
+                                <button type="button" class="btn btn-default" id="translate-button" aria-label="Translate">Translate</button>
+                            </div>
+                        </div>
+                        <div class="row mb-0">
+                            <div class="col-12 col-lg-3 mb-0">
+                                <label for="translateOutputText">Translated text:</label>
+                            </div>
+                            <div class="col-12 col-lg-9 align-self-center mb-0">
+                                <div id="translate-output">
+                                    <textarea readonly class="w-100" id="translateOutputText" name="translateOutputText" rows="7" maxlength="500" placeholder="Translated text appears here..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 pt-1 mt-0 mb-0 text-right">
+                                <i class="far fa-copy" id="translate-copy"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal to show country public holidays -->
+        <div id="modal-card-holidays" class="modal fade" role="dialog" aria-describedby="Public holidays" aria-labelledby="holidays-modal-title" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <!-- Modal content -->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="holidays-modal-title">Public Holidays</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-12 mb-0">
+                                <div class="table-responsive hide" id="holidays-table">
+                                    <table class="table table-striped table-sm mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Date</th>
+                                                <th scope="col">Holiday</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                                <p class="card-text" id="holidays-unavailable">No data available for this country</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal to show country webcams -->
+        <div id="modal-card-webcams" class="modal fade" role="dialog" aria-describedby="Most popular webcams" aria-labelledby="webcams-modal-title" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <!-- Modal content -->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="webcams-modal-title">Webcams<i class="fas fa-question-circle" data-toggle="tooltip" data-placement="bottom" title="Webcams show a timelapse from the last 24 hours"></i></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-12 hide" id="webcam-name-0"><p class="mb-1"></p></div>
+                            <div class="col-12 mb-3 hide" id="webcam-0">
+                                <iframe frameborder="0"></iframe>
+                            </div>
+                            <div class="col-12 hide" id="webcam-name-1"><p class="mb-1"></p></div>
+                            <div class="col-12 mb-3 hide" id="webcam-1">
+                                <iframe frameborder="0"></iframe>
+                            </div>
+                            <div class="col-12 hide" id="webcam-name-2"><p class="mb-1"></p></div>
+                            <div class="col-12 mb-3 hide" id="webcam-2">
+                                <iframe frameborder="0"></iframe>
+                            </div>
+                            <div class="col-12 hide" id="webcams-unavailable"><p class="mb-0"></p></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal to show additional information for a clicked map marker -->
+        <div id="markerModal" class="modal fade" role="dialog" aria-describedby="Information about the selected map marker" aria-labelledby="marker-modal-title" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="marker-modal-title"></h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+                    </div>
+                    <div class="modal-body" id="marker-modal-body">
+                        <p id="marker-address"></p>
+                        <p id="marker-opening-hours"></p>
+                        <p id="marker-phone"></p>
+                        <p id="marker-website"></p>
+
+                        <!-- Create an image carousel for the marker photos -->
+                        <div class="row" id="marker-slideshow">
+                            <div class="col-12">
+                                <p id="marker-photo-attribution"></p>
+                                <div id="marker-carousel" class="carousel slide" data-ride="carousel">
+                                    <ol class="carousel-indicators"></ol>
+                                    <div class="carousel-inner"></div>
+                                    <a class="carousel-control-prev" href="#marker-carousel" role="button" data-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Previous</span>
+                                    </a>
+                                    <a class="carousel-control-next" href="#marker-carousel" role="button" data-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="sr-only">Next</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer" id="marker-modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- jQuery -->
+        <script src="./vendors/js/jquery-3.6.0.min.js"></script>
+        <!-- Bootstrap -->
+        <script src="./vendors/js/bootstrap.bundle.min.js"></script>
+        <!-- Leaflet.js -->
+        <script src="./vendors/js/leaflet.js"></script>
+        <!-- Leaflet.markercluster -->
+        <script src="./vendors/js/leaflet.markercluster.js"></script>
+        <!-- Leaflet EasyButton -->
+        <script src="./vendors/js/easy-button.js"></script>
+        <!-- Main JavaScript -->
+        <script src="./resources/js/script.min.js"></script>
+
+    </body>
+</html>
