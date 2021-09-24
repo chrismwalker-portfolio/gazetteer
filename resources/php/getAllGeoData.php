@@ -114,7 +114,7 @@
         /* REST COUNTRIES API - MAIN COUNTRY INFO */
         /* ============================================= */
 
-        $restCountriesUrl = "https://restcountries.eu/rest/v2/alpha/".json_decode($iso2);
+        $restCountriesUrl = "https://restcountries.com/v2/alpha/".json_decode($iso2);
         curl_setopt($ch, CURLOPT_URL,$restCountriesUrl);
         $restCountriesResult = curl_exec($ch);
         $restCountriesResult = json_decode($restCountriesResult,true);

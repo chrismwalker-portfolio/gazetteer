@@ -331,16 +331,16 @@ $(document).ready(function() {
         // Remove any image elements from the last time the modal was shown
         $('#modal-card-country-flag').empty();
 
-        if (countryInfo.flag) {
+        if (countryInfo.flags) {
             let countryFlag = $(document.createElement('img'));
-            countryFlag.attr('src', countryInfo.flag);
+            countryFlag.attr('src', countryInfo.flags[0]);
             countryFlag.attr('alt', `Flag of ${countryInfo.name}`);
             countryFlag.attr('aria-label', `Flag of ${countryInfo.name}`);
             countryFlag.appendTo('#modal-card-country-flag');
         }
 
         const countryName = countryInfo.name ? countryInfo.name : errorText;
-        const countryRegion = countryInfo.subregion ? countryInfo.subregion : errorText;
+        const countryRegion = countryInfo.region ? countryInfo.region : errorText;
         const countryArea = countryInfo.area ? `${formatNumber(countryInfo.area)} km<sup>2</sup>` : errorText;
         const countryCapitalCity = countryInfo.capital ? countryInfo.capital : errorText;
         const countryPopulation = countryInfo.population ? formatNumber(countryInfo.population) : errorText;
